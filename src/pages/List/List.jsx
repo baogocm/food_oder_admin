@@ -3,9 +3,9 @@ import './List.css';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const List = ({ url }) => {
+const List = () => {
   const [list, setList] = useState([]);
-
+  const url = "https://food-order-backend-5afp.onrender.com";
   const fetchList = async () => {
     try {
       const response = await axios.get(`${url}/api/food/list`);
