@@ -1,0 +1,192 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #ffffff;
+    border-bottom: 1px solid #fee2e2;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.navbar .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #dc2626;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.navbar .logo:hover {
+    color: #b91c1c;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.navbar-search {
+    position: relative;
+}
+
+.navbar-search input {
+    padding: 0.5rem 1rem 0.5rem 2.5rem;
+    border: 1px solid #fee2e2;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    width: 240px;
+    transition: all 0.3s ease;
+}
+
+.navbar-search input:focus {
+    outline: none;
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.navbar-search svg {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    width: 16px;
+    height: 16px;
+}
+
+.navbar-notifications {
+    position: relative;
+    cursor: pointer;
+}
+
+.navbar-notifications svg {
+    width: 20px;
+    height: 20px;
+    color: #4b5563;
+    transition: all 0.3s ease;
+}
+
+.navbar-notifications:hover svg {
+    color: #dc2626;
+}
+
+.navbar-notifications .badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #dc2626;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.navbar-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.navbar-profile:hover {
+    background-color: #fef2f2;
+}
+
+.navbar-profile img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.navbar-profile-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar-profile-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.navbar-profile-role {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.navbar-mobile-menu {
+    display: none;
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+    .navbar {
+        padding: 1rem;
+    }
+
+    .navbar-search {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0.75rem 1rem;
+    }
+
+    .navbar-mobile-menu {
+        display: block;
+    }
+
+    .navbar-right {
+        gap: 1rem;
+    }
+
+    .navbar-profile-info {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .navbar {
+        padding: 0.5rem;
+    }
+
+    .navbar .logo {
+        font-size: 1.25rem;
+    }
+
+    .navbar-notifications {
+        display: none;
+    }
+
+    .navbar-profile {
+        padding: 0.25rem;
+    }
+}
