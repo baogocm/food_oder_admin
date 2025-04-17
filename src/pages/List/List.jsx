@@ -11,7 +11,8 @@ const List = () => {
       const response = await axios.get(`${url}/api/food/list`);
       if (response.data.success) {
         setList(response.data.data);
-      } else {
+      } 
+      else {
         toast.error(response.data.message || "Lỗi khi lấy danh sách món ăn");
       }
     } catch (error) {
