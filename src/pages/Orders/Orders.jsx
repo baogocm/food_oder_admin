@@ -8,6 +8,18 @@ const Orders = ({ url }) => {
   const [error, setError] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [filter, setFilter] = useState('all'); // 'all', 'pending', 'paid', 'shipping', 'delivered', 'cancelled'
+  const [updateLoading, setUpdateLoading] = useState(false); // Trạng thái đang cập nhật
+  const [updateSuccess, setUpdateSuccess] = useState(null); // Thông báo cập nhật thành công
+  const [deleteConfirm, setDeleteConfirm] = useState(null); // ID đơn hàng đang cần xác nhận xóa
+  
+  // Các trạng thái đơn hàng
+  const orderStatuses = [
+    { value: 'Đang chờ', label: 'Đang chờ' },
+    { value: 'Đã thanh toán', label: 'Đã thanh toán' },
+    { value: 'Đang giao', label: 'Đang giao' },
+    { value: 'Đã giao', label: 'Đã giao' },
+    { value: 'Đã hủy', label: 'Đã hủy' }
+  ];
   
   useEffect(() => {
     fetchOrders();
@@ -35,6 +47,108 @@ const Orders = ({ url }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Hàm cập nhật trạng thái đơn hàng
+  const updateOrderStatus = async (orderId, status, payment) => {
+    setUpdateLoading(true);
+    setUpdateSuccess(null);
+    try {
+      const apiUrl = `${url || 'https://food-order-backend-5afp.onrender.com'}/api/order/update-status`;
+      
+      // Lấy token từ localStorage (nếu cần)
+      const token = localStorage.getItem('admin_token');
+      
+      const response = await axios.post(
+        apiUrl, 
+        { orderId, status, payment },
+        { headers: token ? { token } : {} }
+      );
+      
+      if (response.data.success) {
+        // Cập nhật danh sách đơn hàng
+        setOrders(prevOrders => 
+          prevOrders.map(order => 
+            order._id === orderId 
+              ? { ...order, status, payment } 
+              : order
+          )
+        );
+        
+        // Nếu đang xem chi tiết đơn hàng này, cập nhật thông tin
+        if (selectedOrder && selectedOrder._id === orderId) {
+          setSelectedOrder({ ...selectedOrder, status, payment });
+        }
+        
+        setUpdateSuccess(`Đã cập nhật trạng thái đơn hàng thành ${status}`);
+        
+        // Tự động ẩn thông báo sau 3 giây
+        setTimeout(() => {
+          setUpdateSuccess(null);
+        }, 3000);
+      } else {
+        console.error("Lỗi cập nhật trạng thái:", response.data.message);
+        alert("Lỗi khi cập nhật trạng thái đơn hàng: " + response.data.message);
+      }
+    } catch (error) {
+      console.error("Lỗi cập nhật:", error);
+      alert("Đã xảy ra lỗi khi cập nhật trạng thái đơn hàng.");
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+
+  // Hàm xóa đơn hàng
+  const deleteOrder = async (orderId) => {
+    try {
+      setUpdateLoading(true);
+      const apiUrl = `${url || 'https://food-order-backend-5afp.onrender.com'}/api/order/delete`;
+      
+      // Lấy token từ localStorage (nếu cần)
+      const token = localStorage.getItem('admin_token');
+      
+      const response = await axios.post(
+        apiUrl, 
+        { orderId },
+        { headers: token ? { token } : {} }
+      );
+      
+      if (response.data.success) {
+        // Xóa đơn hàng khỏi danh sách
+        setOrders(prevOrders => prevOrders.filter(order => order._id !== orderId));
+        
+        // Nếu đang xem chi tiết đơn hàng này, đóng modal
+        if (selectedOrder && selectedOrder._id === orderId) {
+          setSelectedOrder(null);
+        }
+        
+        setUpdateSuccess("Đã xóa đơn hàng thành công");
+        
+        // Tự động ẩn thông báo sau 3 giây
+        setTimeout(() => {
+          setUpdateSuccess(null);
+        }, 3000);
+      } else {
+        console.error("Lỗi xóa đơn hàng:", response.data.message);
+        alert("Lỗi khi xóa đơn hàng: " + response.data.message);
+      }
+    } catch (error) {
+      console.error("Lỗi xóa đơn hàng:", error);
+      alert("Đã xảy ra lỗi khi xóa đơn hàng.");
+    } finally {
+      setUpdateLoading(false);
+      setDeleteConfirm(null); // Xóa trạng thái xác nhận
+    }
+  };
+
+  // Hàm xác nhận xóa đơn hàng
+  const confirmDelete = (orderId) => {
+    setDeleteConfirm(orderId);
+  };
+
+  // Hàm hủy xóa đơn hàng
+  const cancelDelete = () => {
+    setDeleteConfirm(null);
   };
 
   // Hàm định dạng ngày tháng
@@ -114,6 +228,12 @@ const Orders = ({ url }) => {
     <div className="orders-container">
       <h1>Quản lý đơn hàng</h1>
       
+      {updateSuccess && (
+        <div className="update-success-message">
+          {updateSuccess}
+        </div>
+      )}
+      
       <div className="orders-filters">
         <button 
           className={filter === 'all' ? 'active' : ''} 
@@ -168,6 +288,8 @@ const Orders = ({ url }) => {
               <th>Tổng tiền</th>
               <th>Trạng thái</th>
               <th>Thanh toán</th>
+              <th>Thay đổi trạng thái</th>
+              <th>Xóa</th>
             </tr>
           </thead>
           <tbody>
@@ -209,11 +331,70 @@ const Orders = ({ url }) => {
                       {order.payment ? 'Đã thanh toán' : 'Chưa thanh toán'}
                     </span>
                   </td>
+                  <td 
+                    className="order-actions" 
+                    onClick={(e) => e.stopPropagation()} // Ngăn việc mở modal khi click vào dropdown
+                  >
+                    <select 
+                      value={order.status}
+                      onChange={(e) => {
+                        // Cập nhật trạng thái thanh toán tự động dựa trên trạng thái đơn hàng
+                        const newStatus = e.target.value;
+                        const newPaymentStatus = 
+                          newStatus === 'Đã thanh toán' || 
+                          newStatus === 'Đang giao' || 
+                          newStatus === 'Đã giao' 
+                            ? true 
+                            : order.payment;
+                        
+                        updateOrderStatus(order._id, newStatus, newPaymentStatus);
+                      }}
+                      disabled={updateLoading}
+                      className="status-select"
+                    >
+                      {orderStatuses.map(status => (
+                        <option key={status.value} value={status.value}>
+                          {status.label}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td 
+                    className="order-actions delete-action" 
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {deleteConfirm === order._id ? (
+                      <div className="delete-confirm">
+                        <button 
+                          onClick={() => deleteOrder(order._id)} 
+                          className="confirm-delete-btn"
+                          disabled={updateLoading}
+                        >
+                          Xác nhận
+                        </button>
+                        <button 
+                          onClick={cancelDelete} 
+                          className="cancel-delete-btn"
+                          disabled={updateLoading}
+                        >
+                          Hủy
+                        </button>
+                      </div>
+                    ) : (
+                      <button 
+                        onClick={() => confirmDelete(order._id)} 
+                        className="delete-btn"
+                        disabled={updateLoading}
+                      >
+                        Xóa
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="no-orders">Không có đơn hàng nào</td>
+                <td colSpan="9" className="no-orders">Không có đơn hàng nào</td>
               </tr>
             )}
           </tbody>
@@ -240,20 +421,47 @@ const Orders = ({ url }) => {
               </div>
               <div className="detail-row">
                 <span className="label">Trạng thái:</span>
-                <span className={`value status-badge ${
-                  selectedOrder.status === 'Đang chờ' ? 'pending' : 
-                  selectedOrder.status === 'Đã thanh toán' ? 'paid' : 
-                  selectedOrder.status === 'Đang giao' ? 'shipping' : 
-                  selectedOrder.status === 'Đã giao' ? 'delivered' : 'cancelled'
-                }`}>
-                  {selectedOrder.status}
-                </span>
+                <div className="value status-select-container">
+                  <select 
+                    value={selectedOrder.status}
+                    onChange={(e) => {
+                      const newStatus = e.target.value;
+                      const newPaymentStatus = 
+                        newStatus === 'Đã thanh toán' || 
+                        newStatus === 'Đang giao' || 
+                        newStatus === 'Đã giao' 
+                          ? true 
+                          : selectedOrder.payment;
+                      
+                      updateOrderStatus(selectedOrder._id, newStatus, newPaymentStatus);
+                    }}
+                    disabled={updateLoading}
+                    className="status-select modal-select"
+                  >
+                    {orderStatuses.map(status => (
+                      <option key={status.value} value={status.value}>
+                        {status.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="detail-row">
                 <span className="label">Thanh toán:</span>
-                <span className={`value payment-badge ${selectedOrder.payment ? 'paid' : 'pending'}`}>
-                  {selectedOrder.payment ? 'Đã thanh toán' : 'Chưa thanh toán'}
-                </span>
+                <div className="value payment-select-container">
+                  <select 
+                    value={selectedOrder.payment ? "true" : "false"}
+                    onChange={(e) => {
+                      const newPaymentStatus = e.target.value === "true";
+                      updateOrderStatus(selectedOrder._id, selectedOrder.status, newPaymentStatus);
+                    }}
+                    disabled={updateLoading}
+                    className="payment-select modal-select"
+                  >
+                    <option value="true">Đã thanh toán</option>
+                    <option value="false">Chưa thanh toán</option>
+                  </select>
+                </div>
               </div>
             </div>
             
@@ -299,6 +507,38 @@ const Orders = ({ url }) => {
                 <span className="label">Tổng tiền:</span>
                 <span className="value total-amount">{selectedOrder.amount}đ</span>
               </div>
+            </div>
+            
+            <div className="order-detail-actions">
+              {deleteConfirm === selectedOrder._id ? (
+                <div className="delete-confirm modal-delete-confirm">
+                  <p>Bạn có chắc chắn muốn xóa đơn hàng này?</p>
+                  <div className="delete-confirm-buttons">
+                    <button 
+                      onClick={() => deleteOrder(selectedOrder._id)} 
+                      className="confirm-delete-btn"
+                      disabled={updateLoading}
+                    >
+                      Xác nhận xóa
+                    </button>
+                    <button 
+                      onClick={cancelDelete} 
+                      className="cancel-delete-btn"
+                      disabled={updateLoading}
+                    >
+                      Hủy
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => confirmDelete(selectedOrder._id)} 
+                  className="delete-btn modal-delete-btn"
+                  disabled={updateLoading}
+                >
+                  Xóa đơn hàng
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -143,6 +143,7 @@
     margin-top: 1.5rem;
     padding-top: 1.5rem;
     border-top: 1px solid #e5e7eb;
+    padding: 0 !important;
 }
 
 .order-action-btn {
@@ -530,5 +531,216 @@
   
   .item-price {
     font-weight: bold;
+  }
+}
+
+/* CSS cho dropdown thay đổi trạng thái */
+.order-actions {
+  padding: 0 !important;
+}
+
+.status-select,
+.payment-select,
+.modal-select {
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background-color: white;
+  cursor: pointer;
+  font-size: 14px;
+  width: 100%;
+  max-width: 150px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 12px;
+}
+
+.status-select:focus,
+.payment-select:focus,
+.modal-select:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.modal-select {
+  max-width: 200px;
+}
+
+/* Màu cho các trạng thái đơn hàng trong dropdown */
+.status-select option[value="Đang chờ"] {
+  background-color: #ffebcd;
+  color: #856404;
+}
+
+.status-select option[value="Đã thanh toán"] {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-select option[value="Đang giao"] {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-select option[value="Đã giao"] {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-select option[value="Đã hủy"] {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Thông báo cập nhật thành công */
+.update-success-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 12px 20px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  animation: fadeInOut 3s forwards;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Style cho các container select trong modal */
+.status-select-container,
+.payment-select-container {
+  display: flex;
+  align-items: center;
+}
+
+/* Responsive cho mobile */
+@media (max-width: 768px) {
+  .status-select,
+  .payment-select {
+    max-width: 100px;
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+  
+  .modal-select {
+    max-width: 100%;
+  }
+}
+
+/* Nút xóa và xác nhận xóa */
+.delete-btn {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.delete-btn:hover {
+  background-color: #d32f2f;
+}
+
+.delete-btn:disabled {
+  background-color: #bbb;
+  cursor: not-allowed;
+}
+
+.delete-confirm {
+  display: flex;
+  gap: 5px;
+}
+
+.confirm-delete-btn, 
+.cancel-delete-btn {
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s;
+}
+
+.confirm-delete-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.confirm-delete-btn:hover {
+  background-color: #d32f2f;
+}
+
+.cancel-delete-btn {
+  background-color: #eeeeee;
+  color: #333;
+}
+
+.cancel-delete-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.confirm-delete-btn:disabled, 
+.cancel-delete-btn:disabled {
+  background-color: #bbb;
+  cursor: not-allowed;
+}
+
+/* Nút xóa trong modal */
+.order-detail-actions {
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.modal-delete-btn {
+  padding: 8px 16px;
+  font-size: 16px;
+}
+
+.modal-delete-confirm {
+  width: 100%;
+  text-align: center;
+}
+
+.modal-delete-confirm p {
+  margin-bottom: 15px;
+  font-weight: 500;
+  color: #d32f2f;
+}
+
+.delete-confirm-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.delete-confirm-buttons button {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .delete-confirm {
+    flex-direction: column;
+  }
+  
+  .delete-confirm button {
+    width: 100%;
+    margin-bottom: 5px;
   }
 }
